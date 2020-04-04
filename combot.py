@@ -5,12 +5,15 @@ import datetime
 import random
 import emojis
 
-from secrets import username, password
+from secrets import username, password, channel
 
 class combot:
     # holding title of last video
     current_title = emojis.encode("Surprising LilHuddy & Charli D'Amelio With 10 Custom Louis Vuitton Bags!! :briefcase::school_satchel: ft. TikTok, Addison Rae")
-    
+    message = 'You rocks! You can DM me on my insta @Shanduur :D'
+
+    iterator = 0
+
     # holding timestamp
     d1 = datetime.datetime(2020, 3, 26, 19, 57, 15, 0)
 
@@ -41,18 +44,24 @@ class combot:
         time.sleep(2)
 
     def go_to_page(self):
-        self.driver.get('https://www.youtube.com/channel/UClQubH2NeMmGLTLgNdLBwXg/videos')
+        self.driver.get(channel)
         time.sleep(5)
 
     def check_and_refresh(self):
         # load newest video title 
         vid = self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-browse[1]/ytd-two-column-browse-results-renderer/div[1]/ytd-section-list-renderer/div[2]/ytd-item-section-renderer/div[3]/ytd-grid-renderer/div[1]/ytd-grid-video-renderer[1]/div[1]/div[1]/div[1]/h3/a')
-        
+        title = vid.get_attribute('title')
+
         # check if video title changed
-        while self.current_title == vid.get_attribute('title'):
-            vid = self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-browse[1]/ytd-two-column-browse-results-renderer/div[1]/ytd-section-list-renderer/div[2]/ytd-item-section-renderer/div[3]/ytd-grid-renderer/div[1]/ytd-grid-video-renderer[1]/div[1]/div[1]/div[1]/h3/a')
-            self.driver.refresh()
+        while self.current_title == title:
+            self.driver.get(channel)
             time.sleep(5)
+            vid = self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-browse[1]/ytd-two-column-browse-results-renderer/div[1]/ytd-section-list-renderer/div[2]/ytd-item-section-renderer/div[3]/ytd-grid-renderer/div[1]/ytd-grid-video-renderer[1]/div[1]/div[1]/div[1]/h3/a')
+            title = vid.get_attribute('title')
+            if self.iterator % 12 == 0:
+                print('Reloading...')
+            self.iterator += 1
+
 
         vid.click()
         time.sleep(3)
@@ -67,20 +76,17 @@ class combot:
         self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[4]/div[1]/div/ytd-comments/ytd-item-section-renderer/div[1]/ytd-comments-header-renderer/div[5]/ytd-comment-simplebox-renderer/div[3]/ytd-comment-dialog-renderer/ytd-commentbox/div/div[2]/paper-input-container/div[2]/div/div[1]/ytd-emoji-input/yt-user-mention-autosuggest-input/yt-formatted-string/div').click()
         
         # input text inside textbox
-        self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[4]/div[1]/div/ytd-comments/ytd-item-section-renderer/div[1]/ytd-comments-header-renderer/div[5]/ytd-comment-simplebox-renderer/div[3]/ytd-comment-dialog-renderer/ytd-commentbox/div/div[2]/paper-input-container/div[2]/div/div[1]/ytd-emoji-input/yt-user-mention-autosuggest-input/yt-formatted-string/div').send_keys('You rocks!')
+        self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[4]/div[1]/div/ytd-comments/ytd-item-section-renderer/div[1]/ytd-comments-header-renderer/div[5]/ytd-comment-simplebox-renderer/div[3]/ytd-comment-dialog-renderer/ytd-commentbox/div/div[2]/paper-input-container/div[2]/div/div[1]/ytd-emoji-input/yt-user-mention-autosuggest-input/yt-formatted-string/div').send_keys(self.message)
         
         # write comment
         self.driver.find_element_by_xpath('/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[4]/div[1]/div/ytd-comments/ytd-item-section-renderer/div[1]/ytd-comments-header-renderer/div[5]/ytd-comment-simplebox-renderer/div[3]/ytd-comment-dialog-renderer/ytd-commentbox/div/div[4]/div[5]/ytd-button-renderer[2]/a/paper-button').click()
 
         
-def main():
+def main(): 
+    iterator = 0
     bot = combot()
     bot.login()
     bot.go_to_page()
-
-    while bot.d1 > datetime.datetime.now():
-        pass
-
     bot.check_and_refresh()
     bot.comment()
 
